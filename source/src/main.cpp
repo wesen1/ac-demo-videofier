@@ -1,6 +1,9 @@
 // main.cpp: initialisation & main loop
 
 #include "cube.h"
+#include "audiorecorder.h"
+#include "frameratefixer.h"
+#include "videorecorder.h"
 
 void cleanup(char *msg)         // single program exit point;
 {
@@ -1143,6 +1146,10 @@ int main(int argc, char **argv)
     particleinit();
 
     initlog("sound");
+    audiorecorder audiorecorder("audio.wav", 44100); // 44.1kHz
+    audiorecorder.init();
+    audiomgr.setDevice(audiorecorder.getDevice());
+    audiomgr.setContext(audiorecorder.getContext());
     audiomgr.initsound();
 
     initlog("cfg");
@@ -1244,11 +1251,20 @@ int main(int argc, char **argv)
 #ifdef _DEBUG
     int lastflush = 0;
 #endif
+
+
+    // Initialize video recording
+    int framesPerSecond = 60;
+    frameratefixer frameratefixer(framesPerSecond);
+    videorecorder videorecorder("video.mp4", screen, framesPerSecond);
+    videorecorder.init();
+
     for(;;)
     {
         static int frames = 0;
         static float fps = 10.0f;
-        int millis = SDL_GetTicks() - clockrealbase;
+        int millis = clockrealbase + frameratefixer.calculateTotalMilliseconds(frames);
+
         if(clockfix) millis = int(millis*(double(clockerror)/1000000));
         millis += clockvirtbase;
         if(millis<totalmillis) millis = totalmillis;
@@ -1289,6 +1305,9 @@ int main(int argc, char **argv)
         {
             gl_drawframe(screen->w, screen->h, fps<lowfps ? fps/lowfps : (fps>highfps ? fps/highfps : 1.0f), fps);
             if(frames>4) SDL_GL_SwapBuffers();
+
+            videorecorder.recordFrame();
+            audiorecorder.recordSamples(elapsed);
         }
 
         if(needsautoscreenshot)
@@ -1312,6 +1331,9 @@ int main(int argc, char **argv)
             connectserv(servername, &serverport, password);
         }
     }
+
+    audiorecorder.finish();
+    videorecorder.finish();
 
     quit();
     return EXIT_SUCCESS;
