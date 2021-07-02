@@ -37,6 +37,7 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
+	frameratefixer.o \
 	i18n.o \
 	log.o \
 	main.o \
