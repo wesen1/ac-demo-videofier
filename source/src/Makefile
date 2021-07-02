@@ -29,6 +29,7 @@ endif
 CLIENT_OBJS= \
 	crypto.o \
 	audiomanager.o \
+	audiorecorder.o \
 	client.o \
 	clientgame.o \
 	clients2c.o \

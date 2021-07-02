@@ -10,7 +10,7 @@ class wavwriter
 {
   private:
     // Output file
-    char* outputFilePath;
+    const char* outputFilePath;
     std::ofstream *outputFile;
     size_t dataChunkPos;
 
@@ -24,7 +24,7 @@ class wavwriter
     void finalizeWavFile();
 
   public:
-    wavwriter(char*, int, int, int);
+    wavwriter(const char*, int, int, int);
     void init();
     void writeSampleChannelData(int);
     void finish();

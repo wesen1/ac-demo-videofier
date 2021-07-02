@@ -30,7 +30,7 @@ namespace little_endian_io
  * @param int _numberOfBytesPerSample The number of bytes per sample
  * @param int _numberOfChannels The number of channels
  */
-wavwriter::wavwriter(char* _outputFilePath, int _numberOfSamplesPerSecond, int _numberOfBytesPerSample, int _numberOfChannels)
+wavwriter::wavwriter(const char* _outputFilePath, int _numberOfSamplesPerSecond, int _numberOfBytesPerSample, int _numberOfChannels)
 {
   outputFilePath = _outputFilePath;
   outputFile = NULL;
