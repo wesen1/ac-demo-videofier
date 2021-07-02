@@ -20,6 +20,26 @@ audiomanager::audiomanager()
     context = NULL;
 }
 
+/**
+ * Sets the ALCdevice that this audiomanager should use.
+ *
+ * @param ALCdevice _device The ALCdevice to use
+ */
+void audiomanager::setDevice(ALCdevice* _device)
+{
+  device = _device;
+}
+
+/**
+ * Sets the ALCcontext that this audiomanager should use.
+ *
+ * @param ALCcontext _context The ALCcontext to use
+ */
+void audiomanager::setContext(ALCcontext* _context)
+{
+  context = _context;
+}
+
 void audiomanager::initsound()
 {
     if(!audio)
@@ -29,8 +49,6 @@ void audiomanager::initsound()
     }
 
     nosound = true;
-    device = NULL;
-    context = NULL;
 
     // list available devices
     if(alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT"))
@@ -51,13 +69,15 @@ void audiomanager::initsound()
         }
     }
 
-    // open device
-    const char *devicename = getalias("openaldevice");
-    device = alcOpenDevice(devicename && devicename[0] ? devicename : NULL);
+    if (!device)
+    { // open device
+      const char *devicename = getalias("openaldevice");
+      device = alcOpenDevice(devicename && devicename[0] ? devicename : NULL);
+    }
 
     if(device)
     {
-        context = alcCreateContext(device, NULL);
+        if (!context) context = alcCreateContext(device, NULL);
         if(context)
         {
             alcMakeContextCurrent(context);

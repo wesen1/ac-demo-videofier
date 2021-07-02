@@ -29,6 +29,7 @@ endif
 CLIENT_OBJS= \
 	crypto.o \
 	audiomanager.o \
+	audiorecorder.o \
 	client.o \
 	clientgame.o \
 	clients2c.o \
@@ -37,6 +38,7 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
+	frameratefixer.o \
 	i18n.o \
 	log.o \
 	main.o \
@@ -64,7 +66,9 @@ CLIENT_OBJS= \
 	stream.o \
 	texture.o \
 	tools.o \
+	videorecorder.o \
 	water.o \
+	wavwriter.o \
 	weapon.o \
 	wizard.o \
 	world.o \

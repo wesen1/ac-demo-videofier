@@ -389,6 +389,8 @@ public:
     audiomanager();
 
     // init & setup
+    void setDevice(ALCdevice*);
+    void setContext(ALCcontext*);
     void initsound();
     void preloadmapsound(entity &e, bool trydl = false);
     void preloadmapsounds(bool trydl = false);
