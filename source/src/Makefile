@@ -66,6 +66,7 @@ CLIENT_OBJS= \
 	texture.o \
 	tools.o \
 	water.o \
+	wavwriter.o \
 	weapon.o \
 	wizard.o \
 	world.o \
