@@ -69,6 +69,7 @@ void wavwriter::writeSampleChannelData(int _channelData)
 void wavwriter::finish()
 {
   finalizeWavFile();
+  outputFile->close();
 }
 
 // Private Methods

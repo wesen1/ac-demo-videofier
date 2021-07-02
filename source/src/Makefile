@@ -66,6 +66,7 @@ CLIENT_OBJS= \
 	stream.o \
 	texture.o \
 	tools.o \
+	videorecorder.o \
 	water.o \
 	wavwriter.o \
 	weapon.o \
