@@ -9,13 +9,15 @@
 class videorecorder
 {
   private:
-    const char* outputFilePath;
+    const char* videoOutputFilePath;
+    const char* audioOutputFilePath;
+    const char* renderedDemoOutputFilePath;
     SDL_Surface *screen;
     int framesPerSecond;
     FILE *ffmpeg;
 
   public:
-    videorecorder(const char*, SDL_Surface*, int);
+    videorecorder(const char*, const char*, const char*, SDL_Surface*, int);
     void init();
     void recordFrame();
     void finish();
