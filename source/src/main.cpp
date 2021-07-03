@@ -5,6 +5,11 @@
 #include "frameratefixer.h"
 #include "videorecorder.h"
 
+int framesPerSecond = 60;
+const char audioOutputFilePath[15] = "/tmp/audio.wav";
+const char videoOutputFilePath[15] = "/tmp/video.mp4";
+const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
+
 void cleanup(char *msg)         // single program exit point;
 {
     if(!msg)
@@ -1146,7 +1151,7 @@ int main(int argc, char **argv)
     particleinit();
 
     initlog("sound");
-    audiorecorder audiorecorder("audio.wav", 44100); // 44.1kHz
+    audiorecorder audiorecorder(audioOutputFilePath, 44100); // 44.1kHz
     audiorecorder.init();
     audiomgr.setDevice(audiorecorder.getDevice());
     audiomgr.setContext(audiorecorder.getContext());
@@ -1254,9 +1259,8 @@ int main(int argc, char **argv)
 
 
     // Initialize video recording
-    int framesPerSecond = 60;
     frameratefixer frameratefixer(framesPerSecond);
-    videorecorder videorecorder("video.mp4", screen, framesPerSecond);
+    videorecorder videorecorder(videoOutputFilePath, audioOutputFilePath, renderedDemoOutputFilePath, screen, framesPerSecond);
     videorecorder.init();
 
     for(;;)

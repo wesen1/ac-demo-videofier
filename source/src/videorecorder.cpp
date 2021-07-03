@@ -13,13 +13,17 @@
 /**
  * videorecorder constructor.
  *
- * @param char* _outputFilePath The output file to use
+ * @param char* _videoOutputFilePath The output file to use for the video (without sound)
+ * @param char* _audioOutputFilePath The output file that will be used for the audio
+ * @param char* _renderedDemoOutputFilePath The output file to write the combined video and audio to
  * @param SDL_Surface* _screen The screen to record
  * @param int _framesPerSecond The frames per config setting to use for the resulting video file
  */
-videorecorder::videorecorder(const char* _outputFilePath, SDL_Surface *_screen, int _framesPerSecond)
+videorecorder::videorecorder(const char* _videoOutputFilePath, const char* _audioOutputFilePath, const char* _renderedDemoOutputFilePath, SDL_Surface *_screen, int _framesPerSecond)
 {
-  outputFilePath = _outputFilePath;
+  videoOutputFilePath = _videoOutputFilePath;
+  audioOutputFilePath = _audioOutputFilePath;
+  renderedDemoOutputFilePath = _renderedDemoOutputFilePath;
   screen = _screen;
   framesPerSecond = _framesPerSecond;
 }
@@ -31,8 +35,15 @@ videorecorder::videorecorder(const char* _outputFilePath, SDL_Surface *_screen, 
  */
 void videorecorder::init()
 {
-  char command[150];
-  sprintf(command, "ffmpeg -y -f rawvideo -s %dx%d -pix_fmt rgb24 -r %d -i - -vf vflip -an -b:v 20000k %s", screen->w, screen->h, framesPerSecond, outputFilePath);
+  char videoRecordCommand[150];
+  sprintf(videoRecordCommand, "ffmpeg -y -f rawvideo -s %dx%d -pix_fmt rgb24 -r %d -i - -vf vflip -an -b:v 20000k %s", screen->w, screen->h, framesPerSecond, videoOutputFilePath);
+
+  char demoRenderCommand[100];
+  sprintf(demoRenderCommand, "ffmpeg -y -i %s -i %s %s", videoOutputFilePath, audioOutputFilePath, renderedDemoOutputFilePath);
+
+  char command[255];
+  sprintf(command, "%s && %s", videoRecordCommand, demoRenderCommand);
+
   ffmpeg = popen(command, "w");
 }
 

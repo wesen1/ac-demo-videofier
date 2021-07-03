@@ -1,0 +1,8 @@
+version: "3"
+services:
+    ac-demo-videofier:
+        build: .
+        volumes:
+            - ./recordings:/recordings:rw
+            - ./conf/demos:/home/user/.assaultcube_v1.2/demos
+            - ./conf/maps:/home/user/.assaultcube_v1.2/packages/maps

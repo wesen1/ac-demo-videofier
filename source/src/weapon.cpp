@@ -1482,7 +1482,7 @@ void cpistol::setburst(bool enable)
 
 void setburst(bool enable)
 {
-    if(player1->weaponsel->type != GUN_CPISTOL) return;
+    if(!player1->weaponsel || player1->weaponsel->type != GUN_CPISTOL) return;
     if(intermission) return;
     cpistol *cp = (cpistol *)player1->weaponsel;
     cp->setburst(enable);
@@ -1600,7 +1600,7 @@ void knife::renderstats() { }
 
 void setscope(bool enable)
 {
-    if(player1->weaponsel->type != GUN_SNIPER) return;
+    if(!player1->weaponsel || player1->weaponsel->type != GUN_SNIPER) return;
     if(intermission) return;
     sniperrifle *sr = (sniperrifle *)player1->weaponsel;
     sr->setscope(enable);
