@@ -29,7 +29,7 @@ endif
 CLIENT_OBJS= \
 	crypto.o \
 	audiomanager.o \
-	audiorecorder.o \
+	audiocapturerer.o \
 	client.o \
 	clientgame.o \
 	clients2c.o \
@@ -69,7 +69,6 @@ CLIENT_OBJS= \
 	tools.o \
 	videorecorder.o \
 	water.o \
-	wavwriter.o \
 	weapon.o \
 	wizard.o \
 	world.o \
