@@ -167,7 +167,7 @@ unsigned char* audiocapturerer::captureS16leSamples(int _numberOfMilliseconds)
   ::alcRenderSamplesSOFT(device, data, numberOfSamples);
 
   int s16leSamplesArraySize = calculateS16leSamplesSizeInBytes(_numberOfMilliseconds);
-  unsigned char* s16leSamples = static_cast<unsigned char *>(malloc(s16leSamplesArraySize * sizeof(unsigned char *)));
+  unsigned char* s16leSamples = new unsigned char[s16leSamplesArraySize];
   int dataIndex = 0;
   int samplesListIndex = 0;
   for (int i = 0; i < numberOfSamples; i++)
@@ -278,7 +278,7 @@ int audiocapturerer::calculateNumberOfSamples(int _numberOfMilliseconds)
  */
 unsigned char* audiocapturerer::createS16leSamplesFromChannelData(int _channelData, int _channelDataSizeInBytes)
 {
-  unsigned char* s16leSamples = static_cast<unsigned char *>(malloc(_channelDataSizeInBytes * sizeof(unsigned char *)));
+  unsigned char* s16leSamples = new unsigned char[_channelDataSizeInBytes];
 
   for (int i = 0; i < _channelDataSizeInBytes; i++)
   {
