@@ -23,13 +23,12 @@ else
 USRLIB=$(shell if [ -e /usr/lib64 ]; then echo "/usr/lib64"; else echo "/usr/lib"; fi)
 # override CXXFLAGS+= -rdynamic		# clang++ doesn't use this...
 CLIENT_INCLUDES= $(INCLUDES) -I/usr/include `sdl-config --cflags` -idirafter ../include
-CLIENT_LIBS= -L../enet/.libs -lenet -L$(USRLIB) -lX11 `sdl-config --libs` -lSDL_image -lz -lGL -lopenal -lvorbisfile -lcurl
+CLIENT_LIBS= -L../enet/.libs -lenet -L$(USRLIB) -lX11 `sdl-config --libs` -lSDL_image -lz -lGL -lopenal -lvorbisfile -lcurl -lpthread
 endif
 
 CLIENT_OBJS= \
 	crypto.o \
 	audiomanager.o \
-	audiorecorder.o \
 	client.o \
 	clientgame.o \
 	clients2c.o \
@@ -38,7 +37,6 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
-	frameratefixer.o \
 	i18n.o \
 	log.o \
 	main.o \
@@ -66,9 +64,7 @@ CLIENT_OBJS= \
 	stream.o \
 	texture.o \
 	tools.o \
-	videorecorder.o \
 	water.o \
-	wavwriter.o \
 	weapon.o \
 	wizard.o \
 	world.o \
@@ -83,7 +79,12 @@ CLIENT_OBJS= \
 	bot/bot_util.o \
 	bot/bot_waypoint.o \
 	bot/ac_bot.o \
-	bot/ac_bot_ai.o
+	bot/ac_bot_ai.o \
+	frameratefixer/frameratefixer.o \
+	videorecorder/audiocapturerer.o \
+	videorecorder/filewriter.o \
+	videorecorder/videocapturerer.o \
+	videorecorder/videorecorder.o
 
 CLIENT_PCH= cube.h.gch
 

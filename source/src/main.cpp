@@ -1,14 +1,37 @@
 // main.cpp: initialisation & main loop
 
+#include "frameratefixer/frameratefixer.h"
+#include "videorecorder/audiocapturerer.h"
+#include "videorecorder/videocapturerer.h"
+#include "videorecorder/filewriter.h"
+#include "videorecorder/videorecorder.h"
 #include "cube.h"
-#include "audiorecorder.h"
-#include "frameratefixer.h"
-#include "videorecorder.h"
 
 int framesPerSecond = 60;
-const char audioOutputFilePath[15] = "/tmp/audio.wav";
-const char videoOutputFilePath[15] = "/tmp/video.mp4";
+int numberOfSamplesPerSecond = 44100; // 44.1kHz
+const char framesPipeName[12] = "/tmp/frames";
+const char audioPipeName[11] = "/tmp/audio";
+int maximumFramesQueueSize = 1000;
+int maximumAudioQueueSize = 1000;
 const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
+
+/**
+ * Returns the global static videorecorder instance.
+ *
+ * @return videorecorder The global static videorecorder instance
+ */
+videorecorder* getvideorecorder()
+{
+  static videorecorder* videorecorder = new class videorecorder(
+    new class videocapturerer(screen, framesPerSecond),
+    new class audiocapturerer(numberOfSamplesPerSecond),
+    new class filewriter(framesPipeName, maximumFramesQueueSize),
+    new class filewriter(audioPipeName, maximumAudioQueueSize),
+    renderedDemoOutputFilePath
+  );
+
+  return videorecorder;
+}
 
 void cleanup(char *msg)         // single program exit point;
 {
@@ -37,6 +60,7 @@ VAR(resetcfg, 0, 0, 1);
 
 void quit()                     // normal exit
 {
+    getvideorecorder()->finish();
     const char *onquit = getalias("onQuit");
     if(onquit && onquit[0]) { execute(onquit); alias("onQuit", ""); }
     extern void writeinitcfg();
@@ -1151,10 +1175,7 @@ int main(int argc, char **argv)
     particleinit();
 
     initlog("sound");
-    audiorecorder audiorecorder(audioOutputFilePath, 44100); // 44.1kHz
-    audiorecorder.init();
-    audiomgr.setDevice(audiorecorder.getDevice());
-    audiomgr.setContext(audiorecorder.getContext());
+    getvideorecorder()->init(&audiomgr);
     audiomgr.initsound();
 
     initlog("cfg");
@@ -1260,8 +1281,6 @@ int main(int argc, char **argv)
 
     // Initialize video recording
     frameratefixer frameratefixer(framesPerSecond);
-    videorecorder videorecorder(videoOutputFilePath, audioOutputFilePath, renderedDemoOutputFilePath, screen, framesPerSecond);
-    videorecorder.init();
 
     for(;;)
     {
@@ -1310,8 +1329,7 @@ int main(int argc, char **argv)
             gl_drawframe(screen->w, screen->h, fps<lowfps ? fps/lowfps : (fps>highfps ? fps/highfps : 1.0f), fps);
             if(frames>4) SDL_GL_SwapBuffers();
 
-            videorecorder.recordFrame();
-            audiorecorder.recordSamples(elapsed);
+            getvideorecorder()->recordNextFrame(elapsed);
         }
 
         if(needsautoscreenshot)
@@ -1335,9 +1353,6 @@ int main(int argc, char **argv)
             connectserv(servername, &serverport, password);
         }
     }
-
-    audiorecorder.finish();
-    videorecorder.finish();
 
     quit();
     return EXIT_SUCCESS;

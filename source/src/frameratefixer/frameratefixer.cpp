@@ -54,7 +54,7 @@ int frameratefixer::calculateTotalMilliseconds(int _frames)
  */
 int* frameratefixer::calculateMillisecondsPerFrame(int _framesPerSecond)
 {
-  int *millisecondsPerFrame = static_cast<int *>(malloc(_framesPerSecond * sizeof(int *)));
+  int *millisecondsPerFrame = new int[_framesPerSecond];
 
   // Fill the array with the default minimum milliseconds per frame
   int minimumMillisecondsPerFrame = 1000 / _framesPerSecond;
