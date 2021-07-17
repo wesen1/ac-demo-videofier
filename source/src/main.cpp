@@ -1,7 +1,7 @@
 // main.cpp: initialisation & main loop
 
 #include <sys/stat.h>
-#include "frameratefixer.h"
+#include "frameratefixer/frameratefixer.h"
 #include "videorecorder/audiocapturerer.h"
 #include "videorecorder/videocapturerer.h"
 #include "videorecorder/filewriter.h"

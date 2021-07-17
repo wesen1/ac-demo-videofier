@@ -37,7 +37,6 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
-	frameratefixer.o \
 	i18n.o \
 	log.o \
 	main.o \
@@ -81,6 +80,7 @@ CLIENT_OBJS= \
 	bot/bot_waypoint.o \
 	bot/ac_bot.o \
 	bot/ac_bot_ai.o \
+	frameratefixer/frameratefixer.o \
 	videorecorder/audiocapturerer.o \
 	videorecorder/filewriter.o \
 	videorecorder/videocapturerer.o \
