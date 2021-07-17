@@ -6,20 +6,30 @@
 #ifndef VIDEO_RECORDER
 #define VIDEO_RECORDER
 
+#include "videocapturerer.h"
+#include "audiocapturerer.h"
+#include "filewriter.h"
+#include <mutex>
+#include <condition_variable>
+#include "cube.h"
+
 class videorecorder
 {
   private:
-    const char* videoOutputFilePath;
-    const char* audioOutputFilePath;
-    const char* renderedDemoOutputFilePath;
-    SDL_Surface *screen;
-    int framesPerSecond;
-    FILE *ffmpeg;
+    audiocapturerer* audiocapturerer;
+    videocapturerer* videocapturerer;
+    filewriter* audioFileWriter;
+    filewriter* videoFileWriter;
+    std::condition_variable* conditionVariable;
+    std::mutex* mutex;
+
+    void writeRemainingCachedData();
+    bool writeNextData();
 
   public:
-    videorecorder(const char*, const char*, const char*, SDL_Surface*, int);
-    void init();
-    void recordFrame();
+    videorecorder(class videocapturerer*, class audiocapturerer*, class filewriter*, class filewriter*);
+    void init(audiomanager*);
+    void recordNextFrame(int);
     void finish();
 };
 

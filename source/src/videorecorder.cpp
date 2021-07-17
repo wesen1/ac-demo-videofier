@@ -3,72 +3,133 @@
  * @copyright 2021 wesen <wesen-ac@web.de>
  */
 
-/*
- * This class is based on https://stackoverflow.com/a/25921244.
- */
-
-#include "cube.h"
 #include "videorecorder.h"
 
 /**
  * videorecorder constructor.
  *
- * @param char* _videoOutputFilePath The output file to use for the video (without sound)
- * @param char* _audioOutputFilePath The output file that will be used for the audio
- * @param char* _renderedDemoOutputFilePath The output file to write the combined video and audio to
- * @param SDL_Surface* _screen The screen to record
- * @param int _framesPerSecond The frames per config setting to use for the resulting video file
+ * @param videocapturerer* _videocapturerer The videocapturerer to use
+ * @param audiocapturerer* _audiocapturerer The audiocapturerer to use
+ * @param filewriter* _videoFileWriter The filewriter to use for video data
+ * @param filewriter* _audioFileWriter The filewriter to use for audio data
  */
-videorecorder::videorecorder(const char* _videoOutputFilePath, const char* _audioOutputFilePath, const char* _renderedDemoOutputFilePath, SDL_Surface *_screen, int _framesPerSecond)
+videorecorder::videorecorder(class videocapturerer* _videocapturerer, class audiocapturerer* _audiocapturerer, class filewriter* _videoFileWriter, class filewriter* _audioFileWriter)
 {
-  videoOutputFilePath = _videoOutputFilePath;
-  audioOutputFilePath = _audioOutputFilePath;
-  renderedDemoOutputFilePath = _renderedDemoOutputFilePath;
-  screen = _screen;
-  framesPerSecond = _framesPerSecond;
+  audiocapturerer = _audiocapturerer;
+  videocapturerer = _videocapturerer;
+  audioFileWriter = _audioFileWriter;
+  videoFileWriter = _videoFileWriter;
+
+  conditionVariable = new std::condition_variable();
+  mutex = new std::mutex();
 }
+
 
 // Public Methods
 
 /**
- * Initializes the video recorder by starting a ffmpeg process to which recorded frames can be written.
+ * Initializes the audio capturing.
+ *
+ * @param audiomanager* _audiomanager The audiomanager to capture audio from
  */
-void videorecorder::init()
+void videorecorder::init(audiomanager* _audiomanager)
 {
-  char videoRecordCommand[150];
-  sprintf(videoRecordCommand, "ffmpeg -y -f rawvideo -s %dx%d -pix_fmt rgb24 -r %d -i - -vf vflip -an -b:v 20000k %s", screen->w, screen->h, framesPerSecond, videoOutputFilePath);
+  audiocapturerer->init();
 
-  char demoRenderCommand[100];
-  sprintf(demoRenderCommand, "ffmpeg -y -i %s -i %s %s", videoOutputFilePath, audioOutputFilePath, renderedDemoOutputFilePath);
-
-  char command[255];
-  sprintf(command, "%s && %s", videoRecordCommand, demoRenderCommand);
-
-  ffmpeg = popen(command, "w");
+  _audiomanager->setDevice(audiocapturerer->getDevice());
+  _audiomanager->setContext(audiocapturerer->getContext());
 }
 
 /**
- * Records the current frame and adds it to the ffmpeg process.
+ * Records the next frame video and audio data.
+ * Also writes the next audio or video data to the output files.
+ *
+ * Note:
+ * The video recording relies on the slow calculations of the next frame data, if there is not
+ * enough time between the frame data writes then the frames in the video will sometimes be in the
+ * wrong order.
+ *
+ * @param int _elapsedTimeInMilliseconds The elapsed time in milliseconds for which to capture audio data
  */
-void videorecorder::recordFrame()
+void videorecorder::recordNextFrame(int _elapsedTimeInMilliseconds)
 {
-  uchar *pixels = new uchar[3 * screen->w * screen->h];
-  glReadPixels(0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-  if (ffmpeg)
-  {
-    fwrite(pixels, screen->w * screen->h * 3, 1, ffmpeg);
-  }
+  videoFileWriter->addDataToWrite(
+    videocapturerer->captureFrame(),
+    videocapturerer->calculateFrameSizeInPixels()
+  );
 
-  free(pixels);
+  audioFileWriter->addDataToWrite(
+    audiocapturerer->captureS16leSamples(_elapsedTimeInMilliseconds),
+    audiocapturerer->calculateS16leSamplesSizeInBytes(_elapsedTimeInMilliseconds)
+  );
+
+  bool dataWritten;
+  do
+  {
+    dataWritten = writeNextData();
+  }
+  while (dataWritten && (videoFileWriter->isMaximumCacheSizeReached() || audioFileWriter->isMaximumCacheSizeReached()));
 }
 
 /**
  * Finishes recording.
+ * Writes the remaining cached video and audio data and finishes the file writers.
  */
 void videorecorder::finish()
 {
-  if (ffmpeg)
+  writeRemainingCachedData();
+  videoFileWriter->finish();
+  audioFileWriter->finish();
+}
+
+
+// Private Methods
+
+/**
+ * Writes the remaining cached video and audio data to the output files.
+ */
+void videorecorder::writeRemainingCachedData()
+{
+  while (writeNextData())
   {
-    pclose(ffmpeg);
+  }
+}
+
+/**
+ * Starts the next audio and video writing if required and waits for either the current
+ * audio or video writing to finish.
+ *
+ * @return bool True if the next data was successfully written, false if no new data could be written
+ */
+bool videorecorder::writeNextData()
+{
+  bool nextFrameWriteStarted = false, nextAudioWriteStarted = false;
+  if (!videoFileWriter->isWriteInProgress() && videoFileWriter->hasDataToWrite())
+  {
+    videoFileWriter->startNextWrite(conditionVariable);
+    nextFrameWriteStarted = true;
+  }
+
+  if (!audioFileWriter->isWriteInProgress() && audioFileWriter->hasDataToWrite())
+  {
+    audioFileWriter->startNextWrite(conditionVariable);
+    nextAudioWriteStarted = true;
+  }
+
+  if (videoFileWriter->isWriteInProgress() &&
+      audioFileWriter->isWriteInProgress() &&
+      (nextFrameWriteStarted || nextAudioWriteStarted))
+  {
+    std::unique_lock<std::mutex> lock(*mutex);
+    while (videoFileWriter->isWriteInProgress() && audioFileWriter->isWriteInProgress())
+    {
+      conditionVariable->wait(lock);
+    }
+
+    return true;
+  }
+  else
+  {
+    return false;
   }
 }
