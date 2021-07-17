@@ -26,6 +26,19 @@ filewriter::filewriter(const char* _outputFilePath, int _maximumCacheSize)
 }
 
 
+// Getters and Setters
+
+/**
+ * Returns the output file path.
+ *
+ * @return char[] The output file path
+ */
+const char* filewriter::getOutputFilePath()
+{
+  return outputFilePath;
+}
+
+
 // Public Methods
 
 /**

@@ -28,6 +28,8 @@ class filewriter
  public:
   filewriter(const char*, int);
 
+  const char* getOutputFilePath();
+
   void init();
   void addDataToWrite(unsigned char*, int);
   bool hasDataToWrite();

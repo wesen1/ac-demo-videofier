@@ -4,6 +4,7 @@
  */
 
 #include "videorecorder.h"
+#include <sys/stat.h>
 
 /**
  * videorecorder constructor.
@@ -12,13 +13,15 @@
  * @param audiocapturerer* _audiocapturerer The audiocapturerer to use
  * @param filewriter* _videoFileWriter The filewriter to use for video data
  * @param filewriter* _audioFileWriter The filewriter to use for audio data
+ * @param char[] _renderedDemoOutputFilePath The file path to write the generated video file to
  */
-videorecorder::videorecorder(class videocapturerer* _videocapturerer, class audiocapturerer* _audiocapturerer, class filewriter* _videoFileWriter, class filewriter* _audioFileWriter)
+videorecorder::videorecorder(class videocapturerer* _videocapturerer, class audiocapturerer* _audiocapturerer, class filewriter* _videoFileWriter, class filewriter* _audioFileWriter, const char* _renderedDemoOutputFilePath)
 {
   audiocapturerer = _audiocapturerer;
   videocapturerer = _videocapturerer;
   audioFileWriter = _audioFileWriter;
   videoFileWriter = _videoFileWriter;
+  renderedDemoOutputFilePath = _renderedDemoOutputFilePath;
 
   conditionVariable = new std::condition_variable();
   mutex = new std::mutex();
@@ -28,7 +31,7 @@ videorecorder::videorecorder(class videocapturerer* _videocapturerer, class audi
 // Public Methods
 
 /**
- * Initializes the audio capturing.
+ * Initializes the audio capturing and starts the ffmpeg process that merges video and audio.
  *
  * @param audiomanager* _audiomanager The audiomanager to capture audio from
  */
@@ -38,6 +41,10 @@ void videorecorder::init(audiomanager* _audiomanager)
 
   _audiomanager->setDevice(audiocapturerer->getDevice());
   _audiomanager->setContext(audiocapturerer->getContext());
+
+  mkfifo(videoFileWriter->getOutputFilePath(), 0666);
+  mkfifo(audioFileWriter->getOutputFilePath(), 0666);
+  ffmpegThread = new std::thread(&videorecorder::startFfmpegBackgroundProcess, this);
 }
 
 /**
@@ -80,10 +87,37 @@ void videorecorder::finish()
   writeRemainingCachedData();
   videoFileWriter->finish();
   audioFileWriter->finish();
+
+  if (ffmpegThread)
+  {
+    ffmpegThread->join();
+  }
 }
 
 
 // Private Methods
+
+/**
+ * Starts a ffmpeg process that merges the videorecorder audio and video output into a single output file.
+ */
+void videorecorder::startFfmpegBackgroundProcess()
+{
+  char ffmpegCommand[255];
+  sprintf(
+    ffmpegCommand,
+    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip %s",
+    videocapturerer->getScreen()->w,
+    videocapturerer->getScreen()->h,
+    videocapturerer->getNumberOfFramesPerSecond(),
+    videoFileWriter->getOutputFilePath(),
+    audiocapturerer->getNumberOfSamplesPerSecond(),
+    audiocapturerer->getNumberOfChannels(),
+    audioFileWriter->getOutputFilePath(),
+    renderedDemoOutputFilePath
+  );
+
+  system(ffmpegCommand);
+}
 
 /**
  * Writes the remaining cached video and audio data to the output files.

@@ -9,10 +9,35 @@
  * videocapturerer constructor.
  *
  * @param SDL_Surface* _screen The screen to record
+ * @param int _numberOfFramesPerSecond The number of frames per second
  */
-videocapturerer::videocapturerer(SDL_Surface* _screen)
+videocapturerer::videocapturerer(SDL_Surface* _screen, int _numberOfFramesPerSecond)
 {
   screen = _screen;
+  numberOfFramesPerSecond = _numberOfFramesPerSecond;
+}
+
+
+// Getters and Setters
+
+/**
+ * Returns the screen that this videocapturerer uses.
+ *
+ * @return SDL_Surface* The screen
+ */
+SDL_Surface* videocapturerer::getScreen()
+{
+  return screen;
+}
+
+/**
+ * Returns the number of frames per second that this videocapturerer uses.
+ *
+ * @return int The number of frames per second
+ */
+int videocapturerer::getNumberOfFramesPerSecond()
+{
+  return numberOfFramesPerSecond;
 }
 
 

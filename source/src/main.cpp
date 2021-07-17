@@ -1,6 +1,5 @@
 // main.cpp: initialisation & main loop
 
-#include <sys/stat.h>
 #include "frameratefixer/frameratefixer.h"
 #include "videorecorder/audiocapturerer.h"
 #include "videorecorder/videocapturerer.h"
@@ -14,6 +13,7 @@ const char framesPipeName[12] = "/tmp/frames";
 const char audioPipeName[11] = "/tmp/audio";
 int maximumFramesQueueSize = 1000;
 int maximumAudioQueueSize = 1000;
+const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
 
 /**
  * Returns the global static videorecorder instance.
@@ -23,10 +23,11 @@ int maximumAudioQueueSize = 1000;
 videorecorder* getvideorecorder()
 {
   static videorecorder* videorecorder = new class videorecorder(
-    new class videocapturerer(screen),
+    new class videocapturerer(screen, framesPerSecond),
     new class audiocapturerer(numberOfSamplesPerSecond),
     new class filewriter(framesPipeName, maximumFramesQueueSize),
-    new class filewriter(audioPipeName, maximumAudioQueueSize)
+    new class filewriter(audioPipeName, maximumAudioQueueSize),
+    renderedDemoOutputFilePath
   );
 
   return videorecorder;
@@ -1017,9 +1018,6 @@ VARP(compatibilitymode, 0, 1, 1); // FIXME : find a better place to put this ?
 
 int main(int argc, char **argv)
 {
-    mkfifo(framesPipeName, 0666);
-    mkfifo(audioPipeName, 0666);
-
     extern struct servercommandline scl;
     #ifdef WIN32
     //atexit((void (__cdecl *)(void))_CrtDumpMemoryLeaks);

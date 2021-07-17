@@ -9,8 +9,9 @@
 #include "videocapturerer.h"
 #include "audiocapturerer.h"
 #include "filewriter.h"
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <thread>
 #include "cube.h"
 
 class videorecorder
@@ -20,14 +21,17 @@ class videorecorder
     videocapturerer* videocapturerer;
     filewriter* audioFileWriter;
     filewriter* videoFileWriter;
+    const char* renderedDemoOutputFilePath;
+    std::thread* ffmpegThread;
     std::condition_variable* conditionVariable;
     std::mutex* mutex;
 
+    void startFfmpegBackgroundProcess();
     void writeRemainingCachedData();
     bool writeNextData();
 
   public:
-    videorecorder(class videocapturerer*, class audiocapturerer*, class filewriter*, class filewriter*);
+    videorecorder(class videocapturerer*, class audiocapturerer*, class filewriter*, class filewriter*, const char*);
     void init(audiomanager*);
     void recordNextFrame(int);
     void finish();

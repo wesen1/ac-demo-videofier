@@ -12,9 +12,13 @@ class videocapturerer
 {
  private:
   SDL_Surface* screen;
+  int numberOfFramesPerSecond;
 
  public:
-  videocapturerer(SDL_Surface*);
+  videocapturerer(SDL_Surface*, int);
+
+  SDL_Surface* getScreen();
+  int getNumberOfFramesPerSecond();
 
   int calculateFrameSizeInPixels();
   unsigned char* captureFrame();
