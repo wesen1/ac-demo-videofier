@@ -29,7 +29,6 @@ endif
 CLIENT_OBJS= \
 	crypto.o \
 	audiomanager.o \
-	audiocapturerer.o \
 	client.o \
 	clientgame.o \
 	clients2c.o \
@@ -38,7 +37,6 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
-	filewriter.o \
 	frameratefixer.o \
 	i18n.o \
 	log.o \
@@ -67,8 +65,6 @@ CLIENT_OBJS= \
 	stream.o \
 	texture.o \
 	tools.o \
-	videocapturerer.o \
-	videorecorder.o \
 	water.o \
 	weapon.o \
 	wizard.o \
@@ -84,7 +80,11 @@ CLIENT_OBJS= \
 	bot/bot_util.o \
 	bot/bot_waypoint.o \
 	bot/ac_bot.o \
-	bot/ac_bot_ai.o
+	bot/ac_bot_ai.o \
+	videorecorder/audiocapturerer.o \
+	videorecorder/filewriter.o \
+	videorecorder/videocapturerer.o \
+	videorecorder/videorecorder.o
 
 CLIENT_PCH= cube.h.gch
 

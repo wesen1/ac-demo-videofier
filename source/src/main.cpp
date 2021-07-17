@@ -2,10 +2,10 @@
 
 #include <sys/stat.h>
 #include "frameratefixer.h"
-#include "audiocapturerer.h"
-#include "videocapturerer.h"
-#include "filewriter.h"
-#include "videorecorder.h"
+#include "videorecorder/audiocapturerer.h"
+#include "videorecorder/videocapturerer.h"
+#include "videorecorder/filewriter.h"
+#include "videorecorder/videorecorder.h"
 #include "cube.h"
 
 int framesPerSecond = 60;
