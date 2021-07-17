@@ -23,7 +23,7 @@ else
 USRLIB=$(shell if [ -e /usr/lib64 ]; then echo "/usr/lib64"; else echo "/usr/lib"; fi)
 # override CXXFLAGS+= -rdynamic		# clang++ doesn't use this...
 CLIENT_INCLUDES= $(INCLUDES) -I/usr/include `sdl-config --cflags` -idirafter ../include
-CLIENT_LIBS= -L../enet/.libs -lenet -L$(USRLIB) -lX11 `sdl-config --libs` -lSDL_image -lz -lGL -lopenal -lvorbisfile -lcurl
+CLIENT_LIBS= -L../enet/.libs -lenet -L$(USRLIB) -lX11 `sdl-config --libs` -lSDL_image -lz -lGL -lopenal -lvorbisfile -lcurl -lpthread
 endif
 
 CLIENT_OBJS= \
@@ -38,6 +38,7 @@ CLIENT_OBJS= \
 	docs.o \
 	editing.o \
 	entities.o \
+	filewriter.o \
 	frameratefixer.o \
 	i18n.o \
 	log.o \
