@@ -105,7 +105,7 @@ void videorecorder::startFfmpegBackgroundProcess()
   char ffmpegCommand[255];
   sprintf(
     ffmpegCommand,
-    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip %s",
+    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip -pix_fmt yuv420p %s",
     videocapturerer->getScreen()->w,
     videocapturerer->getScreen()->h,
     videocapturerer->getNumberOfFramesPerSecond(),
@@ -124,8 +124,22 @@ void videorecorder::startFfmpegBackgroundProcess()
  */
 void videorecorder::writeRemainingCachedData()
 {
+  clientlogf("Writing remaining cached data ...");
   while (writeNextData())
   {
+    clientlogf("Remaining cached data: frames = %d; audio = %d",
+               videoFileWriter->remainingDataToWriteCount(),
+               audioFileWriter->remainingDataToWriteCount());
+
+    if (!videoFileWriter->isWriteInProgress() && !videoFileWriter->hasDataToWrite())
+    {
+      videoFileWriter->finish();
+    }
+
+    if (!audioFileWriter->isWriteInProgress() && !audioFileWriter->hasDataToWrite())
+    {
+      audioFileWriter->finish();
+    }
   }
 }
 
@@ -137,25 +151,31 @@ void videorecorder::writeRemainingCachedData()
  */
 bool videorecorder::writeNextData()
 {
-  bool nextFrameWriteStarted = false, nextAudioWriteStarted = false;
-  if (!videoFileWriter->isWriteInProgress() && videoFileWriter->hasDataToWrite())
+  if (videoFileWriter->getIsFinished() && audioFileWriter->getIsFinished())
+  {
+    return false;
+  }
+
+  bool frameWriteInProgress = videoFileWriter->isWriteInProgress();
+  if (!frameWriteInProgress && videoFileWriter->hasDataToWrite())
   {
     videoFileWriter->startNextWrite(conditionVariable);
-    nextFrameWriteStarted = true;
+    frameWriteInProgress = true;
   }
 
-  if (!audioFileWriter->isWriteInProgress() && audioFileWriter->hasDataToWrite())
+  bool audioWriteInProgress = audioFileWriter->isWriteInProgress();
+  if (!audioWriteInProgress && audioFileWriter->hasDataToWrite())
   {
     audioFileWriter->startNextWrite(conditionVariable);
-    nextAudioWriteStarted = true;
+    audioWriteInProgress = true;
   }
 
-  if (videoFileWriter->isWriteInProgress() &&
-      audioFileWriter->isWriteInProgress() &&
-      (nextFrameWriteStarted || nextAudioWriteStarted))
+  if ((frameWriteInProgress || videoFileWriter->getIsFinished()) &&
+      (audioWriteInProgress || audioFileWriter->getIsFinished()))
   {
     std::unique_lock<std::mutex> lock(*mutex);
-    while (videoFileWriter->isWriteInProgress() && audioFileWriter->isWriteInProgress())
+    while ((videoFileWriter->isWriteInProgress() || videoFileWriter->getIsFinished()) &&
+           (audioFileWriter->isWriteInProgress() || audioFileWriter->getIsFinished()))
     {
       conditionVariable->wait(lock);
     }
