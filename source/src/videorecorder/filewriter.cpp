@@ -99,6 +99,16 @@ bool filewriter::hasDataToWrite()
 }
 
 /**
+ * Returns the current remaining data queue size.
+ *
+ * @return int The current remaining data queue size
+ */
+int filewriter::remainingDataToWriteCount()
+{
+  return nextData->size();
+}
+
+/**
  * Return whether a data write is currently in progress.
  *
  * @return bool True if a data write is currently in progress, false otherwise

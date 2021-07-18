@@ -124,8 +124,13 @@ void videorecorder::startFfmpegBackgroundProcess()
  */
 void videorecorder::writeRemainingCachedData()
 {
+  clientlogf("Writing remaining cached data ...");
   while (writeNextData())
   {
+    clientlogf("Remaining cached data: frames = %d; audio = %d",
+               videoFileWriter->remainingDataToWriteCount(),
+               audioFileWriter->remainingDataToWriteCount());
+
     if (!videoFileWriter->isWriteInProgress() && !videoFileWriter->hasDataToWrite())
     {
       videoFileWriter->finish();

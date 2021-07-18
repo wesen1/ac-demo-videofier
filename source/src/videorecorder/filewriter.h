@@ -35,6 +35,7 @@ class filewriter
   void init();
   void addDataToWrite(unsigned char*, int);
   bool hasDataToWrite();
+  int remainingDataToWriteCount();
   bool isMaximumCacheSizeReached();
   bool isWriteInProgress();
   void startNextWrite(std::condition_variable*);
