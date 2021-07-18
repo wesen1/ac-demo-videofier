@@ -126,6 +126,15 @@ void videorecorder::writeRemainingCachedData()
 {
   while (writeNextData())
   {
+    if (!videoFileWriter->isWriteInProgress() && !videoFileWriter->hasDataToWrite())
+    {
+      videoFileWriter->finish();
+    }
+
+    if (!audioFileWriter->isWriteInProgress() && !audioFileWriter->hasDataToWrite())
+    {
+      audioFileWriter->finish();
+    }
   }
 }
 
@@ -137,25 +146,31 @@ void videorecorder::writeRemainingCachedData()
  */
 bool videorecorder::writeNextData()
 {
-  bool nextFrameWriteStarted = false, nextAudioWriteStarted = false;
-  if (!videoFileWriter->isWriteInProgress() && videoFileWriter->hasDataToWrite())
+  if (videoFileWriter->getIsFinished() && audioFileWriter->getIsFinished())
+  {
+    return false;
+  }
+
+  bool frameWriteInProgress = videoFileWriter->isWriteInProgress();
+  if (!frameWriteInProgress && videoFileWriter->hasDataToWrite())
   {
     videoFileWriter->startNextWrite(conditionVariable);
-    nextFrameWriteStarted = true;
+    frameWriteInProgress = true;
   }
 
-  if (!audioFileWriter->isWriteInProgress() && audioFileWriter->hasDataToWrite())
+  bool audioWriteInProgress = audioFileWriter->isWriteInProgress();
+  if (!audioWriteInProgress && audioFileWriter->hasDataToWrite())
   {
     audioFileWriter->startNextWrite(conditionVariable);
-    nextAudioWriteStarted = true;
+    audioWriteInProgress = true;
   }
 
-  if (videoFileWriter->isWriteInProgress() &&
-      audioFileWriter->isWriteInProgress() &&
-      (nextFrameWriteStarted || nextAudioWriteStarted))
+  if ((frameWriteInProgress || videoFileWriter->getIsFinished()) &&
+      (audioWriteInProgress || audioFileWriter->getIsFinished()))
   {
     std::unique_lock<std::mutex> lock(*mutex);
-    while (videoFileWriter->isWriteInProgress() && audioFileWriter->isWriteInProgress())
+    while ((videoFileWriter->isWriteInProgress() || videoFileWriter->getIsFinished()) &&
+           (audioFileWriter->isWriteInProgress() || audioFileWriter->getIsFinished()))
     {
       conditionVariable->wait(lock);
     }
