@@ -23,6 +23,8 @@ filewriter::filewriter(const char* _outputFilePath, int _maximumCacheSize)
 
   nextData = new std::queue<unsigned char*>;
   nextDataSizes = new std::queue<int>;
+
+  isFinished = false;
 }
 
 
@@ -36,6 +38,16 @@ filewriter::filewriter(const char* _outputFilePath, int _maximumCacheSize)
 const char* filewriter::getOutputFilePath()
 {
   return outputFilePath;
+}
+
+/**
+ * Returns whether this file writer was finished via filewriter::finish().
+ *
+ * @return bool True if this file writer is finished, false otherwise
+ */
+bool filewriter::getIsFinished()
+{
+  return isFinished;
 }
 
 
@@ -125,6 +137,9 @@ void filewriter::startNextWrite(std::condition_variable* _conditionVariable)
  */
 void filewriter::finish()
 {
+  if (isFinished) return;
+
+  isFinished = true;
   close(outputFileDescriptor);
 }
 
