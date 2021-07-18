@@ -105,7 +105,7 @@ void videorecorder::startFfmpegBackgroundProcess()
   char ffmpegCommand[255];
   sprintf(
     ffmpegCommand,
-    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip %s",
+    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip -pix_fmt yuv420p %s",
     videocapturerer->getScreen()->w,
     videocapturerer->getScreen()->h,
     videocapturerer->getNumberOfFramesPerSecond(),
