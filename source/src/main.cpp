@@ -11,8 +11,8 @@ int framesPerSecond = 60;
 int numberOfSamplesPerSecond = 44100; // 44.1kHz
 const char framesPipeName[12] = "/tmp/frames";
 const char audioPipeName[11] = "/tmp/audio";
-int maximumFramesQueueSize = 1000;
-int maximumAudioQueueSize = 1000;
+int maximumFramesQueueSize = 60;
+int maximumAudioQueueSize = 60;
 const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
 
 /**
