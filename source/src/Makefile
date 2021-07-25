@@ -161,7 +161,7 @@ CLIENT_OBJS= \
 	bestscoretimefinder/DemoInfoProcessor/PlayerList.o \
 	bestscoretimefinder/FlagScoreFinder.o \
 	bestscoretimefinder/BestScoreTimeFinder.o \
-	bestscoretimefinder/BestScoreTimeFinderFactory.o
+	demoviewer/DemoViewer.o
 
 CLIENT_PCH= cube.h.gch
 
