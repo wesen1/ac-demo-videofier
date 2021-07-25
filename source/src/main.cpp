@@ -1229,6 +1229,9 @@ int main(int argc, char **argv)
     {
         exec("config/defaults.cfg");
         firstrun = true;
+
+        clientlogf("Disabling first run behavior");
+        firstrun = false;
     }
     if(identexists("afterinit")) execute("afterinit");
     if(compatibilitymode)
