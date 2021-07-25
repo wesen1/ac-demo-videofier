@@ -1328,7 +1328,7 @@ int main(int argc, char **argv)
         if(clockfix) millis = int(millis*(double(clockerror)/1000000));
         millis += clockvirtbase;
         if(millis<totalmillis) millis = totalmillis;
-        limitfps(millis, totalmillis);
+        //limitfps(millis, totalmillis);
         int elapsed = millis-totalmillis;
         if(multiplayer(false)) curtime = elapsed;
         else
