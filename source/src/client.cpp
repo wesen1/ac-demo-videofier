@@ -833,13 +833,13 @@ void listdemos()
     addmsg(SV_LISTDEMOS, "r");
 }
 
-void shiftgametime(int newmillis)
+void shiftgametime(int newmillis, bool _isVerifiedTimestamp)
 {
     newmillis = max(0, newmillis);
     int gamemillis = gametimecurrent + (lastmillis - lastgametimeupdate);
 
     if(!watchingdemo) { conoutf("You have to be watching a demo to change game time"); return; }
-    if(newmillis > gametimemaximum) { conoutf("Invalid time specified"); return; }
+    if(newmillis > gametimemaximum && !_isVerifiedTimestamp) { conoutf("Invalid time specified"); return; }
 
     if(newmillis < gamemillis)
     {
@@ -857,13 +857,13 @@ void shiftgametime(int newmillis)
 
 void setminutesremaining(int *minutes)
 {
-    shiftgametime(gametimemaximum - (*minutes)*60000);
+    shiftgametime(gametimemaximum - (*minutes)*60000, false);
 }
 
 void rewinddemo(int *seconds)
 {
     int gamemillis = gametimecurrent+(lastmillis-lastgametimeupdate);
-    shiftgametime(gamemillis - (*seconds)*1000);
+    shiftgametime(gamemillis - (*seconds)*1000, false);
 }
 
 COMMAND(sendmap, "s");

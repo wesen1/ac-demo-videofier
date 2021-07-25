@@ -79,6 +79,15 @@ void videorecorder::recordNextFrame(int _elapsedTimeInMilliseconds)
 }
 
 /**
+ * Cancels the video recording.
+ */
+void videorecorder::cancel()
+{
+  ffmpegThread = NULL;
+  finish();
+}
+
+/**
  * Finishes recording.
  * Writes the remaining cached video and audio data and finishes the file writers.
  */

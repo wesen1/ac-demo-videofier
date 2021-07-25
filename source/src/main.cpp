@@ -1,5 +1,8 @@
 // main.cpp: initialisation & main loop
 
+#include "bestscoretimefinder/BestScoreTimeFinderFactory.h"
+#include "bestscoretimefinder/BestScoreTimeFinder.h"
+#include "demoviewer/DemoViewer.h"
 #include "frameratefixer/frameratefixer.h"
 #include "videorecorder/audiocapturerer.h"
 #include "videorecorder/videocapturerer.h"
@@ -14,6 +17,9 @@ const char audioPipeName[11] = "/tmp/audio";
 int maximumFramesQueueSize = 60;
 int maximumAudioQueueSize = 60;
 const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
+const char demoFileName[255] = "20210220_2320_51.38.185.3_gema_la_momie_11min_CTF";
+const char playerName[8] = "unarmed";
+const char playerIp[16] = "91.22.212.x";
 
 /**
  * Returns the global static videorecorder instance.
@@ -1223,6 +1229,9 @@ int main(int argc, char **argv)
     {
         exec("config/defaults.cfg");
         firstrun = true;
+
+        clientlogf("Disabling first run behavior");
+        firstrun = false;
     }
     if(identexists("afterinit")) execute("afterinit");
     if(compatibilitymode)
@@ -1282,6 +1291,38 @@ int main(int argc, char **argv)
     // Initialize video recording
     frameratefixer frameratefixer(framesPerSecond);
 
+    BestScoreTimeFinderFactory* bestScoreTimeFinderFactory = new BestScoreTimeFinderFactory();
+    BestScoreTimeFinder* bestScoreTimeFinder = bestScoreTimeFinderFactory->createBestScoreTimeFinder();
+
+    defformatstring(relativeDemoFilePath)("demos/%s.dmo", demoFileName);
+    FlagScore* bestFlagScore = bestScoreTimeFinder->findBestScoreTime(relativeDemoFilePath, playerName, playerIp);
+    if (bestFlagScore)
+    {
+      clientlogf("Found best flag score:");
+      clientlogf("%s (%d, %s) scored after %d milliseconds with weapon %d at timestamp %d",
+                 bestFlagScore->getPlayer()->getName(),
+                 bestFlagScore->getPlayer()->getClientNumber(),
+                 bestFlagScore->getPlayer()->getIpString().c_str(),
+                 bestFlagScore->calculateScoreTime(),
+                 bestFlagScore->getWeaponId(),
+                 bestFlagScore->getSpawnTimestamp()
+      );
+    }
+    else
+    {
+      clientlogf("Found no best flag score");
+      getvideorecorder()->cancel();
+      quit();
+      return 1;
+    }
+
+    DemoViewer* demoViewer = new DemoViewer(
+      demoFileName,
+      bestFlagScore->getSpawnTimestamp() - 3000,
+      bestFlagScore->getScoreTimestamp() + 3000,
+      bestFlagScore->getPlayer()->getClientNumber()
+    );
+
     for(;;)
     {
         static int frames = 0;
@@ -1291,7 +1332,7 @@ int main(int argc, char **argv)
         if(clockfix) millis = int(millis*(double(clockerror)/1000000));
         millis += clockvirtbase;
         if(millis<totalmillis) millis = totalmillis;
-        limitfps(millis, totalmillis);
+        //limitfps(millis, totalmillis);
         int elapsed = millis-totalmillis;
         if(multiplayer(false)) curtime = elapsed;
         else
@@ -1309,6 +1350,9 @@ int main(int argc, char **argv)
         }
         lastmillis += curtime;
         totalmillis = millis;
+
+        if (!demoViewer->getIsSetupFinished()) demoViewer->tryFinishSetup();
+        else if (demoViewer->isFinished()) break;
 
         checkinput();
 
@@ -1329,7 +1373,14 @@ int main(int argc, char **argv)
             gl_drawframe(screen->w, screen->h, fps<lowfps ? fps/lowfps : (fps>highfps ? fps/highfps : 1.0f), fps);
             if(frames>4) SDL_GL_SwapBuffers();
 
-            getvideorecorder()->recordNextFrame(elapsed);
+            if (!watchingdemo)
+            {
+              demoViewer->startDemoPlayback();
+            }
+            else if (demoViewer->getIsSetupFinished())
+            {
+              getvideorecorder()->recordNextFrame(elapsed);
+            }
         }
 
         if(needsautoscreenshot)

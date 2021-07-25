@@ -9,6 +9,5 @@ RUN cd /source/src && \
 
 FROM wesen1/assaultcube-client:1.2.0.2
 COPY --from=builder /source/src/ac_client /ac-client/bin_unix/linux_64_client
-COPY ./scripts/playback-demo.cfg /ac-client/scripts/playback-demo.cfg
 RUN apt-get update && \
     apt-get install -y ffmpeg

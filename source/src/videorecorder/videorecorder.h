@@ -34,6 +34,7 @@ class videorecorder
     videorecorder(class videocapturerer*, class audiocapturerer*, class filewriter*, class filewriter*, const char*);
     void init(audiomanager*);
     void recordNextFrame(int);
+    void cancel();
     void finish();
 };
 
