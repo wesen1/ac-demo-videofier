@@ -5,3 +5,4 @@ ac_server
 source/enet/*
 conf
 recordings/
+util/generate-message-classes/switch-case.txt
