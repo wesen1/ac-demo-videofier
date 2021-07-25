@@ -19,7 +19,7 @@ filewriter::filewriter(const char* _outputFilePath, int _maximumCacheSize)
   maximumCacheSize = _maximumCacheSize;
 
   currentWriteThread = NULL;
-  currentWriteFinished = false;
+  currentWriteFinished = true;
 
   nextData = new std::queue<unsigned char*>;
   nextDataSizes = new std::queue<int>;
