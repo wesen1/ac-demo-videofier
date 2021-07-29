@@ -11,4 +11,5 @@ FROM wesen1/assaultcube-client:1.2.0.2
 COPY --from=builder /source/src/ac_client /ac-client/bin_unix/linux_64_client
 COPY ./conf/config /home/user/.assaultcube_v1.2/config
 RUN apt-get update && \
-    apt-get install -y ffmpeg
+    apt-get install -y ffmpeg && \
+    sed -i 's/Modes "1366x768"/Modes "1920x1080"/g' /etc/X11/xorg.conf
