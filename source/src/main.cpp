@@ -11,7 +11,7 @@
 #include "cube.h"
 
 int framesPerSecond = 60;
-int numberOfSamplesPerSecond = 44100; // 44.1kHz
+int numberOfSamplesPerSecond = 48000; // 48kHz
 const char framesPipeName[12] = "/tmp/frames";
 const char audioPipeName[11] = "/tmp/audio";
 int maximumFramesQueueSize = 60;
