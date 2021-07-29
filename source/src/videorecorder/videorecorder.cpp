@@ -111,10 +111,14 @@ void videorecorder::finish()
  */
 void videorecorder::startFfmpegBackgroundProcess()
 {
-  char ffmpegCommand[255];
+  /*
+   * The recommended settings for YouTube are used for the output encoding
+   * @see https://scribbleghost.net/2018/10/26/recommended-encoding-settings-for-youtube-in-ffmpeg/
+   */
+  char ffmpegCommand[1000];
   sprintf(
     ffmpegCommand,
-    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip -pix_fmt yuv420p %s",
+    "ffmpeg -y -f rawvideo -video_size %dx%d -pixel_format rgb24 -framerate %d -i %s -f s16le -sample_rate %d -channels %d -async 0 -i %s -vf vflip -c:v libx264 -preset medium -crf 18 -profile:v high -bf 2 -coder 1 -pix_fmt yuv420p -b:v 15M -cpu-used 0 -r %d -c:a aac -ar %d -b:a 320k -ac 2 %s",
     videocapturerer->getScreen()->w,
     videocapturerer->getScreen()->h,
     videocapturerer->getNumberOfFramesPerSecond(),
@@ -122,6 +126,8 @@ void videorecorder::startFfmpegBackgroundProcess()
     audiocapturerer->getNumberOfSamplesPerSecond(),
     audiocapturerer->getNumberOfChannels(),
     audioFileWriter->getOutputFilePath(),
+    videocapturerer->getNumberOfFramesPerSecond(),
+    audiocapturerer->getNumberOfSamplesPerSecond(),
     renderedDemoOutputFilePath
   );
 

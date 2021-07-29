@@ -3,6 +3,7 @@ cube.h.gch
 ac_client
 ac_server
 source/enet/*
-conf
+conf/maps
+conf/demos
 recordings/
 util/generate-message-classes/switch-case.txt
