@@ -17,9 +17,10 @@ const char audioPipeName[11] = "/tmp/audio";
 int maximumFramesQueueSize = 60;
 int maximumAudioQueueSize = 60;
 const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
-const char demoFileName[255] = "20210220_2320_51.38.185.3_gema_la_momie_11min_CTF";
-const char playerName[8] = "unarmed";
-const char playerIp[16] = "91.22.212.x";
+const char demoFileName[255] = "20210726_1742_51.38.185.3_RooftopGema_4min_CTF";
+const char playerName[255] = "wesen";
+//const char playerIp[16] = "127.0.0.x";
+const char* playerIp = NULL;
 
 /**
  * Returns the global static videorecorder instance.
