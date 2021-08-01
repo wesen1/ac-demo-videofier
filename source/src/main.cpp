@@ -1,5 +1,6 @@
 // main.cpp: initialisation & main loop
 
+#include "config/Config.h"
 #include "demoviewer/DemoViewer.h"
 #include "frameratefixer/frameratefixer.h"
 #include "videorecorder/audiocapturerer.h"
@@ -8,17 +9,7 @@
 #include "videorecorder/videorecorder.h"
 #include "cube.h"
 
-int framesPerSecond = 60;
-int numberOfSamplesPerSecond = 48000; // 48kHz
-const char framesPipeName[12] = "/tmp/frames";
-const char audioPipeName[11] = "/tmp/audio";
-int maximumFramesQueueSize = 60;
-int maximumAudioQueueSize = 60;
-const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
-const char demoFileName[255] = "20210726_1742_51.38.185.3_RooftopGema_4min_CTF";
-int followClientNumber = 0;
-int startTimestamp = 4500; // Spawn - 3000
-int endTimestamp = 18650; // Score + 3000
+Config* config = new Config();
 
 /**
  * Returns the global static videorecorder instance.
@@ -28,11 +19,11 @@ int endTimestamp = 18650; // Score + 3000
 videorecorder* getvideorecorder()
 {
   static videorecorder* videorecorder = new class videorecorder(
-    new class videocapturerer(screen, framesPerSecond),
-    new class audiocapturerer(numberOfSamplesPerSecond),
-    new class filewriter(framesPipeName, maximumFramesQueueSize),
-    new class filewriter(audioPipeName, maximumAudioQueueSize),
-    renderedDemoOutputFilePath
+    new class videocapturerer(screen, config->framesPerSecond),
+    new class audiocapturerer(config->numberOfSamplesPerSecond),
+    new class filewriter(config->framesPipeName.c_str(), config->maximumFramesQueueSize),
+    new class filewriter(config->audioPipeName.c_str(), config->maximumAudioQueueSize),
+    config->renderedDemoOutputFilePath.c_str()
   );
 
   return videorecorder;
@@ -1023,6 +1014,9 @@ VARP(compatibilitymode, 0, 1, 1); // FIXME : find a better place to put this ?
 
 int main(int argc, char **argv)
 {
+    config->load();
+    config->dump();
+
     extern struct servercommandline scl;
     #ifdef WIN32
     //atexit((void (__cdecl *)(void))_CrtDumpMemoryLeaks);
@@ -1288,13 +1282,13 @@ int main(int argc, char **argv)
 
 
     // Initialize video recording
-    frameratefixer frameratefixer(framesPerSecond);
+    frameratefixer frameratefixer(config->framesPerSecond);
 
     DemoViewer* demoViewer = new DemoViewer(
-      demoFileName,
-      startTimestamp,
-      endTimestamp,
-      followClientNumber
+      config->demoFileName.c_str(),
+      config->startTimestamp,
+      config->endTimestamp,
+      config->followClientNumber
     );
 
     for(;;)
