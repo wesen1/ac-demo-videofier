@@ -1,7 +1,5 @@
 // main.cpp: initialisation & main loop
 
-#include "bestscoretimefinder/BestScoreTimeFinderFactory.h"
-#include "bestscoretimefinder/BestScoreTimeFinder.h"
 #include "demoviewer/DemoViewer.h"
 #include "frameratefixer/frameratefixer.h"
 #include "videorecorder/audiocapturerer.h"
@@ -18,9 +16,9 @@ int maximumFramesQueueSize = 60;
 int maximumAudioQueueSize = 60;
 const char renderedDemoOutputFilePath[21] = "/recordings/demo.mp4";
 const char demoFileName[255] = "20210726_1742_51.38.185.3_RooftopGema_4min_CTF";
-const char playerName[255] = "wesen";
-//const char playerIp[16] = "127.0.0.x";
-const char* playerIp = NULL;
+int followClientNumber = 0;
+int startTimestamp = 4500; // Spawn - 3000
+int endTimestamp = 18650; // Score + 3000
 
 /**
  * Returns the global static videorecorder instance.
@@ -1292,36 +1290,11 @@ int main(int argc, char **argv)
     // Initialize video recording
     frameratefixer frameratefixer(framesPerSecond);
 
-    BestScoreTimeFinderFactory* bestScoreTimeFinderFactory = new BestScoreTimeFinderFactory();
-    BestScoreTimeFinder* bestScoreTimeFinder = bestScoreTimeFinderFactory->createBestScoreTimeFinder();
-
-    defformatstring(relativeDemoFilePath)("demos/%s.dmo", demoFileName);
-    FlagScore* bestFlagScore = bestScoreTimeFinder->findBestScoreTime(relativeDemoFilePath, playerName, playerIp);
-    if (bestFlagScore)
-    {
-      clientlogf("Found best flag score:");
-      clientlogf("%s (%d, %s) scored after %d milliseconds with weapon %d at timestamp %d",
-                 bestFlagScore->getPlayer()->getName(),
-                 bestFlagScore->getPlayer()->getClientNumber(),
-                 bestFlagScore->getPlayer()->getIpString().c_str(),
-                 bestFlagScore->calculateScoreTime(),
-                 bestFlagScore->getWeaponId(),
-                 bestFlagScore->getSpawnTimestamp()
-      );
-    }
-    else
-    {
-      clientlogf("Found no best flag score");
-      getvideorecorder()->cancel();
-      quit();
-      return 1;
-    }
-
     DemoViewer* demoViewer = new DemoViewer(
       demoFileName,
-      bestFlagScore->getSpawnTimestamp() - 3000,
-      bestFlagScore->getScoreTimestamp() + 3000,
-      bestFlagScore->getPlayer()->getClientNumber()
+      startTimestamp,
+      endTimestamp,
+      followClientNumber
     );
 
     for(;;)
