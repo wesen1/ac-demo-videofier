@@ -49,7 +49,10 @@ bool DemoViewer::getIsSetupFinished()
 void DemoViewer::startDemoPlayback()
 {
   callvote(SA_MAP, demoFileName, "-1", "");
-  shiftgametime(startTimestamp, true);
+  if (startTimestamp > gametimecurrent)
+  {
+    shiftgametime(startTimestamp, true);
+  }
 }
 
 /**
