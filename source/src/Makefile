@@ -85,7 +85,8 @@ CLIENT_OBJS= \
 	videorecorder/filewriter.o \
 	videorecorder/videocapturerer.o \
 	videorecorder/videorecorder.o \
-	demoviewer/DemoViewer.o
+	demoviewer/DemoViewer.o \
+	config/Config.o
 
 CLIENT_PCH= cube.h.gch
 
