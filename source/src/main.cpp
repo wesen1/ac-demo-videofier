@@ -1312,7 +1312,6 @@ int main(int argc, char **argv)
     else
     {
       clientlogf("Found no best flag score");
-      getvideorecorder()->cancel();
       quit();
       return 1;
     }
