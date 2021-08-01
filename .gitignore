@@ -6,4 +6,3 @@ source/enet/*
 conf/maps
 conf/demos
 recordings/
-util/generate-message-classes/switch-case.txt
