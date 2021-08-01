@@ -85,14 +85,6 @@ CLIENT_OBJS= \
 	videorecorder/filewriter.o \
 	videorecorder/videocapturerer.o \
 	videorecorder/videorecorder.o \
-	bestscoretimefinder/DemoInfoProcessor/FlagScore.o \
-	bestscoretimefinder/DemoInfoProcessor/FlagScoreList.o \
-	bestscoretimefinder/DemoInfoProcessor/Game.o \
-	bestscoretimefinder/DemoInfoProcessor/Player.o \
-	bestscoretimefinder/DemoInfoProcessor/PlayerList.o \
-	bestscoretimefinder/FlagScoreFinder.o \
-	bestscoretimefinder/BestScoreTimeFinder.o \
-	bestscoretimefinder/BestScoreTimeFinderFactory.o \
 	demoviewer/DemoViewer.o
 
 CLIENT_PCH= cube.h.gch
